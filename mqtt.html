@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT - SmartSilo</title>
+    <!-- Incluindo a biblioteca MQTT.js via CDN -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 60px;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: #3b5998;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+        }
+
+        .sidebar.expanded {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #2a4373;
+        }
+
+        .sidebar .icon {
+            min-width: 30px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        .sidebar .menu-text {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar.expanded .menu-text {
+            display: inline;
+            opacity: 1;
+        }
+
+        .content {
+            margin-left: 60px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .content.expanded {
+            margin-left: 250px;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            left: 70px;
+            top: 10px;
+            z-index: 1001;
+            background-color: #3b5998;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background-color: #2a4373;
+            transform: scale(1.1);
+        }
+
+        .mqtt-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .user-welcome {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1002;
+        }
+
+        #mqttData {
+            font-size: 18px;
+            color: #007bff;
+            margin-top: 20px;
+        }
+
+        #mqttStatus {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <a href="index.html">
+            <span class="icon">🏠</span>
+            <span class="menu-text">Dashboard</span>
+        </a>
+        <a href="graficos.html">
+            <span class="icon">📊</span>
+            <span class="menu-text">Gráficos</span>
+        </a>
+        <a href="mqtt.html">
+            <span class="icon">📡</span>
+            <span class="menu-text">MQTT</span>
+        </a>
+        <a href="#sair" id="logoutLink">
+            <span class="icon">🚪</span>
+            <span class="menu-text">Sair</span>
+        </a>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSidebar()">❯</button>
+
+    <div class="content" id="content">
+        <div class="user-welcome" id="userWelcome"></div>
+        <h1>Dados do Broker MQTT</h1>
+        <div class="mqtt-container">
+            <p>Conectado ao tópico: <strong>SmartSilos/Aviario1/NivelSilo1/Matricula</strong></p>
+            <div id="mqttData">Aguardando dados...</div>
+            <div id="mqttStatus">Conectando ao broker...</div>
+        </div>
+    </div>
+
+    <script>
+        // Função para verificar se o usuário está logado
+        function checkAuth() {
+            const loggedUser = localStorage.getItem('loggedUser');
+            if (!loggedUser) {
+                window.location.href = 'login.html';
+            }
+            return loggedUser;
+        }
+
+        // Chama a verificação imediatamente ao carregar a página
+        const currentUser = checkAuth();
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            
+            sidebar.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+
+            if (sidebar.classList.contains('expanded')) {
+                toggleBtn.textContent = '❮';
+                toggleBtn.style.left = '260px';
+            } else {
+                toggleBtn.textContent = '❯';
+                toggleBtn.style.left = '70px';
+            }
+        }
+
+        document.getElementById('logoutLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            localStorage.removeItem('loggedUser');
+            window.location.href = 'login.html';
+        });
+
+        // Configuração do cliente MQTT
+        document.addEventListener("DOMContentLoaded", function() {
+            // Exibe o nome do usuário
+            const userWelcome = document.getElementById('userWelcome');
+            if (userWelcome) {
+                userWelcome.textContent = `Bem-vindo, ${currentUser}`;
+            }
+
+            const mqttStatus = document.getElementById('mqttStatus');
+            const mqttData = document.getElementById('mqttData');
+
+            // Conexão ao broker MQTT
+            const client = mqtt.connect('ws://nearfish.ddns.net:1883', {
+                reconnectPeriod: 1000, // Tenta reconectar a cada 1 segundo se desconectar
+                clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8) // ID único
+            });
+
+            client.on('connect', function () {
+                console.log('Conectado ao broker MQTT');
+                mqttStatus.textContent = 'Conectado ao broker';
+                client.subscribe('SmartSilos/Aviario1/NivelSilo1/Matricula', { qos: 0 }, function (err) {
+                    if (!err) {
+                        console.log('Inscrito no tópico SmartSilos/Aviario1/NivelSilo1/Matricula');
+                        mqttStatus.textContent = 'Conectado e inscrito no tópico';
+                    } else {
+                        console.error('Erro ao inscrever no tópico:', err);
+                        mqttStatus.textContent = 'Erro ao inscrever no tópico';
+                    }
+                });
+            });
+
+            client.on('message', function (topic, message) {
+                const data = message.toString();
+                console.log('Mensagem recebida no tópico:', topic);
+                console.log('Dados:', data);
+                mqttData.textContent = `Nível do Silo 1: ${data}`;
+                mqttStatus.textContent = 'Dados recebidos com sucesso';
+            });
+
+            client.on('error', function (err) {
+                console.error('Erro na conexão MQTT:', err);
+                mqttStatus.textContent = 'Erro ao conectar ao broker: ' + err.message;
+            });
+
+            client.on('reconnect', function () {
+                console.log('Tentando reconectar ao broker MQTT...');
+                mqttStatus.textContent = 'Tentando reconectar...';
+            });
+
+            client.on('close', function () {
+                console.log('Conexão com o broker fechada');
+                mqttStatus.textContent = 'Conexão perdida';
+            });
+        });
+    </script>
+</body>
+</html>

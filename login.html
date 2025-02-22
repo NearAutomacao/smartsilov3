@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Primary Meta Tags -->
+    <title>SmartSilo</title>
+    <meta name="title" content="SmartSilo" />
+    <meta name="description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode ser acessado a qualquer momento e de qualquer lugar." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nearautomacao.netlify.app" />
+    <meta property="og:title" content="SmartSilo" />
+    <meta property="twitter:description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode ser acessado a qualquer momento e de qualquer lugar." />
+    <meta property="og:image" content="https://nearautomacao.netlify.app/assets/smartsilotag.jpg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://nearautomacao.netlify.app" />
+    <meta property="twitter:title" content="SmartSilo" />
+    <meta property="twitter:description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode ser acessado a qualquer momento e de qualquer lugar." />
+    <meta property="twitter:image" content="https://nearautomacao.netlify.app/assets/smartsilotag.jpg" />
+
+    <!-- Meta Tags Generated with https://metatags.io -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('assets/abovehd.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-card button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Usuário" required>
+            <input type="password" id="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <p id="errorMessage" class="error-message">Usuário ou senha incorretos!</p>
+    </div>
+
+    <script>
+        // Definindo o usuário e senha padrão
+        const adminUser = "admin";
+        const adminPassword = "admin";
+
+        const luanUser = "luan";
+        const luanPassword = "123";
+
+        const jeisonUser = "jeison";
+        const jeisonPassword = "456";
+
+        const thalisUser = "thalis";
+        const thalisPassword = "789";
+
+        // Função para verificar o login
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            const usernameInput = document.getElementById("username").value.trim();
+            const passwordInput = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById("errorMessage");
+
+            console.log("Usuário digitado:", usernameInput); // Depuração
+            console.log("Senha digitada:", passwordInput);   // Depuração
+
+            // Verifica cada par de usuário e senha
+            if (
+                (usernameInput === adminUser && passwordInput === adminPassword) ||
+                (usernameInput === luanUser && passwordInput === luanPassword) ||
+                (usernameInput === jeisonUser && passwordInput === jeisonPassword) ||
+                (usernameInput === thalisUser && passwordInput === thalisPassword)
+            ) {
+                console.log("Login bem-sucedido! Redirecionando..."); // Depuração
+                localStorage.setItem('loggedUser', usernameInput); // Armazena o usuário logado
+                window.location.href = "index.html"; // Redireciona para index.html
+            } else {
+                console.log("Erro: Credenciais inválidas"); // Depuração
+                errorMessage.style.display = "block"; // Mostra mensagem de erro
+            }
+        });
+    </script>
+</body>
+</html>
