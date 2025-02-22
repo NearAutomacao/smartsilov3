@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Primary Meta Tags -->
+    <title>SmartSilo</title>
+    <meta name="title" content="SmartSilo" />
+    <meta name="description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode ser acessado a qualquer momento e de qualquer lugar." />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nearautomacao.netlify.app" />
+    <meta property="og:title" content="SmartSilo" />
+    <meta property="twitter:description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode ser acessado a qualquer momento e de qualquer lugar." />
+    <meta property="og:image" content="https://nearautomacao.netlify.app/assets/smartsilotag.jpg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://nearautomacao.netlify.app" />
+    <meta property="twitter:title" content="SmartSilo" />
+    <meta property="twitter:description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode be acessado a qualquer momento e de qualquer lugar." />
+    <meta property="twitter:image" content="https://nearautomacao.netlify.app/assets/smartsilotag.jpg" />
+
+    <!-- Meta Tags Generated with https://metatags.io -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSilo</title>
+    <style>
+        .sidebar {
+            height: 100%;
+            width: 60px;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: #3b5998;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+        }
+
+        .sidebar.expanded {
+            width: 250px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #2a4373;
+        }
+
+        .sidebar .icon {
+            min-width: 30px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        .sidebar .menu-text {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar.expanded .menu-text {
+            display: inline;
+            opacity: 1;
+        }
+
+        .content {
+            margin-left: 60px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .content.expanded {
+            margin-left: 250px;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            left: 70px;
+            top: 10px;
+            z-index: 1001;
+            background-color: #3b5998;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background-color: #2a4373;
+            transform: scale(1.1);
+        }
+
+        .card-body {
+            min-height: 150px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        .silo-frame {
+            border: 2px solid #a2cffe;
+            padding: 5px;
+            border-radius: 0;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 350px;
+            align-items: flex-start;
+            margin-left: 0;
+        }
+
+        .silo-header {
+            font-size: 12px;
+            color: #333;
+            font-weight: normal;
+            width: 100%;
+            text-align: left;
+            padding-left: 5px;
+        }
+
+        .silo-content {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            padding-left: 5px;
+        }
+
+        .silos {
+            display: flex;
+            gap: 10px;
+            width: auto;
+        }
+
+        .silo-container {
+            position: relative;
+            width: 80px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .silo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            z-index: 2;
+        }
+
+        .silo-fill {
+            position: absolute;
+            bottom: 17%;
+            width: 100%;
+            max-height: 66%;
+            height: 0;
+            background-color: green;
+            opacity: 0.6;
+            transition: height 0.5s ease-in-out, background-color 0.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .silo-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid black;
+            font-weight: bold;
+            color: black;
+            z-index: 3;
+        }
+
+        .peso-silos {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #333;
+            font-weight: normal;
+            margin-left: 10px;
+        }
+
+        .user-welcome {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1002;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <a href="#dashboard">
+            <span class="icon">🏠</span>
+            <span class="menu-text">Dashboard</span>
+        </a>
+        <a href="graficos.html">
+            <span class="icon">📊</span>
+            <span class="menu-text">Gráficos</span>
+        </a>
+        <a href="mqtt.html">
+            <span class="icon">📡</span>
+            <span class="menu-text">MQTT</span>
+        </a>
+        <a href="#sair" id="logoutLink">
+            <span class="icon">🚪</span>
+            <span class="menu-text">Sair</span>
+        </a>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSidebar()">❯</button>
+
+    <div class="content" id="content">
+        <div class="user-welcome" id="userWelcome"></div>
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2"></div>
+                            <div class="silo-frame">
+                                <div class="silo-header">Aviário 01 - Jéssica De Ré - Matricula: 112939</div>
+                                <div class="silo-content">
+                                    <div class="silos">
+                                        <div class="silo-container" data-percent="0">
+                                            <div class="silo-fill"></div>
+                                            <img src="/assets/Ativo_1_4x.png" alt="Imagem" class="silo-img">
+                                            <div class="silo-percentage">Aguardando...</div>
+                                        </div>
+                                        <div class="silo-container" data-percent="0">
+                                            <div class="silo-fill"></div>
+                                            <img src="/assets/Ativo_1_4x.png" alt="Imagem" class="silo-img">
+                                            <div class="silo-percentage">Aguardando...</div>
+                                        </div>
+                                    </div>
+                                    <div class="peso-silos">
+                                        <div>PESO SILO 01:</div>
+                                        <div id="pesoSilo1">500 kg</div>
+                                        <div>PESO SILO 02:</div>
+                                        <div id="pesoSilo2">450 kg</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para verificar autenticação
+        function checkAuth() {
+            const loggedUser = localStorage.getItem('loggedUser');
+            if (!loggedUser) {
+                window.location.href = 'login.html';
+            }
+            return loggedUser;
+        }
+
+        const currentUser = checkAuth();
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            
+            sidebar.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+
+            if (sidebar.classList.contains('expanded')) {
+                toggleBtn.textContent = '❮';
+                toggleBtn.style.left = '260px';
+            } else {
+                toggleBtn.textContent = '❯';
+                toggleBtn.style.left = '70px';
+            }
+        }
+
+        function updateSilos() {
+            document.querySelectorAll('.silo-container').forEach(silo => {
+                const percent = parseInt(silo.getAttribute('data-percent'));
+                const fill = silo.querySelector('.silo-fill');
+                
+                const maxFillHeight = 66;
+                const fillHeight = (percent / 100) * maxFillHeight;
+                fill.style.height = `${fillHeight}%`;
+
+                if (percent <= 30) {
+                    fill.style.backgroundColor = 'red';
+                } else if (percent <= 70) {
+                    fill.style.backgroundColor = 'yellow';
+                } else {
+                    fill.style.backgroundColor = 'green';
+                }
+            });
+        }
+
+        document.getElementById('logoutLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            localStorage.removeItem('loggedUser');
+            window.location.href = 'login.html';
+        });
+
+        // Função para atualizar os silos com dados do MQTT
+        function updateSiloFromMQTT(topic, mqttValue) {
+            const percentage = (parseFloat(mqttValue) / 150); // Divide por 150 e converte para %
+            const roundedPercentage = percentage.toFixed(0); // Arredonda para número inteiro
+
+            if (topic === 'SmartSilos/Aviario1/NivelSilo1/Matricula') {
+                const silo1Container = document.querySelector('.silo-container:nth-child(1)'); // Primeiro silo
+                const silo1Percentage = silo1Container.querySelector('.silo-percentage');
+                silo1Container.setAttribute('data-percent', roundedPercentage);
+                silo1Percentage.textContent = `${roundedPercentage}%`;
+                document.getElementById('pesoSilo1').textContent = `${mqttValue} kg`;
+                // Salvar no localStorage
+                localStorage.setItem('silo1Percentage', roundedPercentage);
+                localStorage.setItem('silo1Peso', mqttValue);
+            } else if (topic === 'SmartSilos/Aviario1/NivelSilo2/Matricula') {
+                const silo2Container = document.querySelector('.silo-container:nth-child(2)'); // Segundo silo
+                const silo2Percentage = silo2Container.querySelector('.silo-percentage');
+                silo2Container.setAttribute('data-percent', roundedPercentage);
+                silo2Percentage.textContent = `${roundedPercentage}%`;
+                document.getElementById('pesoSilo2').textContent = `${mqttValue} kg`;
+                // Salvar no localStorage
+                localStorage.setItem('silo2Percentage', roundedPercentage);
+                localStorage.setItem('silo2Peso', mqttValue);
+            }
+
+            // Atualiza as barras de preenchimento
+            updateSilos();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Restaurar valores do localStorage ao carregar a página
+            const silo1PercentageStored = localStorage.getItem('silo1Percentage');
+            const silo1PesoStored = localStorage.getItem('silo1Peso');
+            const silo2PercentageStored = localStorage.getItem('silo2Percentage');
+            const silo2PesoStored = localStorage.getItem('silo2Peso');
+
+            const silo1Container = document.querySelector('.silo-container:nth-child(1)');
+            const silo1Percentage = silo1Container.querySelector('.silo-percentage');
+            const silo2Container = document.querySelector('.silo-container:nth-child(2)');
+            const silo2Percentage = silo2Container.querySelector('.silo-percentage');
+
+            if (silo1PercentageStored && silo1PesoStored) {
+                silo1Container.setAttribute('data-percent', silo1PercentageStored);
+                silo1Percentage.textContent = `${silo1PercentageStored}%`;
+                document.getElementById('pesoSilo1').textContent = `${silo1PesoStored} kg`;
+            }
+
+            if (silo2PercentageStored && silo2PesoStored) {
+                silo2Container.setAttribute('data-percent', silo2PercentageStored);
+                silo2Percentage.textContent = `${silo2PercentageStored}%`;
+                document.getElementById('pesoSilo2').textContent = `${silo2PesoStored} kg`;
+            }
+
+            updateSilos();
+
+            const userWelcome = document.getElementById('userWelcome');
+            userWelcome.textContent = `Bem-vindo, ${currentUser}`;
+
+            const percentages = [];
+            document.querySelectorAll('.silo-percentage').forEach((element) => {
+                const value = element.textContent.includes('%') ? parseInt(element.textContent) : 0;
+                percentages.push(value);
+            });
+            localStorage.setItem('siloPercentages', JSON.stringify(percentages));
+
+            // Conexão ao WebSocket para receber dados do MQTT
+           // No <script> de cada arquivo HTML
+                const ws = new WebSocket(`wss://${window.location.host}`);
+            //const ws = new WebSocket('ws://localhost:1890'); // Ajustado para 8080, conforme server.js padrão
+
+            ws.onopen = function () {
+                console.log('Conectado ao servidor WebSocket');
+            };
+
+            ws.onmessage = function (event) {
+                const message = JSON.parse(event.data);
+                console.log('Dados recebidos do WebSocket:', message);
+                updateSiloFromMQTT(message.topic, message.data); // Atualiza os silos e pesos
+            };
+
+            ws.onerror = function (err) {
+                console.error('Erro no WebSocket:', err);
+            };
+
+            ws.onclose = function () {
+                console.log('Conexão WebSocket fechada');
+            };
+        });
+    </script>
+</body>
+</html>
